@@ -749,11 +749,11 @@ void meterISR() {
 void saveSoldDrink(SoldDrink drink) {
   byte ind = EEPROM.read(addressIndexSoldDrink);
   byte total = EEPROM.read(addressTotalSoldDrink);
-  ind = ind % 10;
+  ind = ind % 9;
   total = total % 10;
   EEPROM.put(startAddressSoldDrink + sizeof(SoldDrink) * ind, drink);
   ind += 1;
-  ind = ind % 10;
+  ind = ind % 9;
   total += 1;
   if (total > 10)
     total = 10;
@@ -778,11 +778,11 @@ void printSavedSoldDrink() {
 void saveTankInfo(SavedTankInfo info) {
   byte ind = EEPROM.read(addressIndexTankInfo);
   byte total = EEPROM.read(addressTotalTankInfo);
-  ind = ind % 10;
+  ind = ind % 9;
   total = total % 10;
   EEPROM.put(startAddressTankInfo + sizeof(info) * ind, info);
   ind += 1;
-  ind = ind % 10;
+  ind = ind % 9;
   total += 1;
   if (total > 10)
     total = 10;
