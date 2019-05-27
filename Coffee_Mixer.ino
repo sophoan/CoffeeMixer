@@ -23,10 +23,14 @@ char ratioChoices[4] = {'1', '2', '3', '\0'};
 char sizeChoices[4] = {'1', '2', '3', '\0'};
 char confirmChoices[3] = {'1', '2', '\0'};
 
-unsigned int drinkSizes[3] = {120, 240, 360};
+unsigned int drinkSizes[3] = {150, 250, 350};
+int adjustedAmount = 10;
+
+long period = 500;   // one second (in milliseconds)
+
 
 Tank tank1 = {0x76, 0, 3, 15};
-Tank tank2 = {0x70, 0, 3, 12};
+Tank tank2 = {0x70, 0, 3, 13};
 Tank tank3 = {0x72, 0, 3, 15};
 
 
@@ -121,8 +125,6 @@ char selectedDrink = '0';
 char selectedSize = '0';
 char selectedRatio = '0';
 
-int adjustedAmount = 5;
-
 LinkedList<DrawWaterTask*> drawWaterTasks = LinkedList<DrawWaterTask*>();
 
 byte buttonState;
@@ -152,7 +154,6 @@ FlowSensorProperties meterSensor = {1.0f, 7.5f,
 };
 FlowMeter meter = FlowMeter(2, meterSensor);
 
-long period = 1000;   // one second (in milliseconds)
 long lastMeterTime = 0;
 
 
@@ -186,8 +187,10 @@ unsigned long lastSavedTankInfoTime = 0;
 unsigned long tankInfoSaveInterval = 60000;
 
 void setup() {
-  //EEPROM.write(addressIndexSoldDrink, 0);
-  //EEPROM.write(addressTotalSoldDrink, 0);
+  //  EEPROM.write(addressIndexSoldDrink, 0);
+  //  EEPROM.write(addressTotalSoldDrink, 0);
+  //  EEPROM.write(addressIndexTankInfo, 0);
+  //  EEPROM.write(addressTotalTankInfo, 0);
   Serial.begin(9600);
   lcd.begin(16, 2);
   Wire.begin();
@@ -211,18 +214,18 @@ void setup() {
 
   pinMode(13, OUTPUT);
 
-//  buzzer.begin(100);
-//  buzzer.sound(0, 80);
-//  buzzer.sound(NOTE_F7, 80);
-//  buzzer.sound(NOTE_G7, 80);
-//  buzzer.sound(0, 80);
-//  buzzer.sound(NOTE_E7, 80);
-//  buzzer.sound(0, 80);
-//  buzzer.sound(NOTE_C7, 80);
-//  buzzer.sound(NOTE_D7, 80);
-//  buzzer.sound(NOTE_B6, 80);
-//  buzzer.sound(0, 160);
-//  buzzer.end(2000);
+  //  buzzer.begin(100);
+  //  buzzer.sound(0, 80);
+  //  buzzer.sound(NOTE_F7, 80);
+  //  buzzer.sound(NOTE_G7, 80);
+  //  buzzer.sound(0, 80);
+  //  buzzer.sound(NOTE_E7, 80);
+  //  buzzer.sound(0, 80);
+  //  buzzer.sound(NOTE_C7, 80);
+  //  buzzer.sound(NOTE_D7, 80);
+  //  buzzer.sound(NOTE_B6, 80);
+  //  buzzer.sound(0, 160);
+  //  buzzer.end(2000);
 }
 
 void loop() {
@@ -366,7 +369,7 @@ void loop() {
     case SERVING:
       if (drawWaterTasks.size() > 0) {
         DrawWaterTask* task = drawWaterTasks.get(0);
-        if ((task->drewAmount + adjustedAmount) > task->amountToDraw) {
+        if ((task->drewAmount + adjustedAmount) >= task->amountToDraw) {
           digitalWrite(task->pin, LOW);
           debugln("Finish a draw water task.");
           debugln("Drew amount: ");
@@ -390,25 +393,34 @@ void loop() {
         if (selectedDrink == '1') {
           int time = 500;
           buzzer.begin(10);
-          buzzer.sound(NOTE_G3, time / 2);
-          buzzer.sound(NOTE_E4, time / 2);
-          buzzer.sound(NOTE_D4, time / 2);
-          buzzer.sound(NOTE_C4, time / 2);
+          //          buzzer.sound(NOTE_G3, time / 2);
+          //          buzzer.sound(NOTE_E4, time / 2);
+          //          buzzer.sound(NOTE_D4, time / 2);
+          //          buzzer.sound(NOTE_C4, time / 2);
+          buzzer.sound(NOTE_A3, 500);
+          buzzer.sound(NOTE_A3, 500);
+          buzzer.sound(NOTE_F3, 375);
+          buzzer.sound(NOTE_C4, 125);
           buzzer.end(2000);
         } else if (selectedDrink == '2') {
           buzzer.begin(10);
-          buzzer.sound(NOTE_E7, 80);
-          buzzer.sound(NOTE_E7, 80);
-          buzzer.sound(0, 80);
-          buzzer.sound(NOTE_E7, 80);
-          buzzer.sound(0, 80);
-          buzzer.sound(NOTE_C7, 80);
-          buzzer.sound(NOTE_E7, 80);
-          buzzer.sound(0, 80);
-          buzzer.sound(NOTE_G7, 80);
-          buzzer.sound(0, 240);
-          buzzer.sound(NOTE_G6, 80);
-          buzzer.sound(0, 240);
+          //          buzzer.sound(NOTE_E7, 80);
+          //          buzzer.sound(NOTE_E7, 80);
+          //          buzzer.sound(0, 80);
+          //          buzzer.sound(NOTE_E7, 80);
+          //          buzzer.sound(0, 80);
+          //          buzzer.sound(NOTE_C7, 80);
+          //          buzzer.sound(NOTE_E7, 80);
+          //          buzzer.sound(0, 80);
+          //          buzzer.sound(NOTE_G7, 80);
+          //          buzzer.sound(0, 240);
+          //          buzzer.sound(NOTE_G6, 80);
+          //          buzzer.sound(0, 240);
+          buzzer.sound(NOTE_FS4, 125);
+          buzzer.sound(NOTE_E4, 125);
+          buzzer.sound(NOTE_F4, 250);
+          buzzer.sound(0, 250);
+          buzzer.sound(NOTE_AS3, 250);
           buzzer.end(2000);
         }
         changeCurrentState(DRINKSEL);
@@ -707,11 +719,11 @@ void createDrawWaterTasks(char selectedDrink, char selectedSize, char selectedRa
       left = 1.0f;
       break;
     case '2':
-      left = 0.7f;
+      left = 0.65f;
       right = 1 - left;
       break;
     case '3':
-      left = 0.5f;
+      left = 0.45f;
       right = 1 - left;
       break;
     default:
@@ -799,7 +811,7 @@ void printSavedTankInfo() {
   Serial.println("Saved Tank Info:");
   for (byte i = 0; i < total; i++) {
     EEPROM.get(startAddressTankInfo + sizeof(SavedTankInfo)  * i, info);
-    String str = "1: " + String(info.one) + ", 2: " + String(info.three) + ", 3: " + String(info.three);
+    String str = "1: " + String(info.one) + "%, 2: " + String(info.two) + "%, 3: " + String(info.three) + "%";
     Serial.println(str);
   }
 }
